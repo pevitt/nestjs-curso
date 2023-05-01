@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UsersEntity } from '../entities/users.entity';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { UserDto, UserUpdateDTO } from '../dto/user.dto';
+import { ErrorManager } from 'src/utils/error.managers';
 
 @Injectable()
 export class UsersService {
@@ -22,20 +23,34 @@ export class UsersService {
 
     public async findUsers(): Promise<UsersEntity[]> {
         try {
-          return await this.userRepository.find();
+          const Users:UsersEntity[] = await this.userRepository.find();
+          if(Users.length === 0){
+            throw new ErrorManager({
+              type: 'BAD_REQUEST',
+              message: 'No se encontro resultados'
+            });
+          }
+          return Users;
         } catch (error) {
-          throw new Error(error);
+          throw ErrorManager.createSignatureError(error.message);
         }
     }
     
     public async findUserById(id: string): Promise<UsersEntity> {
         try {
-            return await this.userRepository
+            const User:UsersEntity = await this.userRepository
             .createQueryBuilder('user')
             .where({ id })
             .getOne();
+            if(!User){
+              throw new ErrorManager({
+                type: 'BAD_REQUEST',
+                message: 'No se encontro usuario'
+              });
+            }
+            return User;
         } catch (error) {
-            throw new Error(error);
+            throw ErrorManager.createSignatureError(error.message);
         }
     }
 
@@ -46,11 +61,14 @@ export class UsersService {
         try {
           const user: UpdateResult = await this.userRepository.update(id, body);
           if (user.affected === 0) {
-            return undefined;
+            throw new ErrorManager({
+              type: 'BAD_REQUEST',
+              message: 'No encontrado'
+            });
           }
-          return user;
+          return user.raw;
         } catch (error) {
-          throw new Error(error);
+          throw ErrorManager.createSignatureError(error.message);
         }
     }
 
@@ -59,11 +77,14 @@ export class UsersService {
         try {
           const user: DeleteResult = await this.userRepository.delete(id);
           if (user.affected === 0) {
-            return undefined;
+            throw new ErrorManager({
+              type: 'BAD_REQUEST',
+              message: 'No encontrado'
+            });
           }
           return user;
         } catch (error) {
-          throw new Error(error);
+          throw ErrorManager.createSignatureError(error.message);
         }
     }
 
