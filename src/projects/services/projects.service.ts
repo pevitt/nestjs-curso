@@ -33,6 +33,8 @@ export class ProjectsService {
             return this.projectRepository
             .createQueryBuilder('project')
             .where({ id })
+            .leftJoinAndSelect('project.usersIncludes','usersIncludes')
+            .leftJoinAndSelect('usersIncludes.user','user')
             .getOne();
         } catch (error) {
             throw new Error(error);

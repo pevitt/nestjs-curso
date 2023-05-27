@@ -1,5 +1,7 @@
-import { IsNotEmpty, IsString, IsNumber, IsEnum, IsOptional } from "class-validator";
-import { ROLES } from "src/constants/roles";
+import { IsNotEmpty, IsString, IsNumber, IsEnum, IsOptional, IsUUID } from "class-validator";
+import { ACCESS_LEVEL, ROLES } from "src/constants/roles";
+import { ProjectsEntity } from "../../projects/entities/projects.entity";
+import { UsersEntity } from "../entities/users.entity";
 
 export class UserDto{
 
@@ -62,3 +64,18 @@ export class UserUpdateDTO {
     @IsEnum(ROLES)
     role: ROLES;
 }
+
+
+export class UserToProjectDTO {
+    @IsNotEmpty()
+    @IsUUID()
+    user: UsersEntity;
+  
+    @IsNotEmpty()
+    @IsUUID()
+    project: ProjectsEntity;
+  
+    @IsNotEmpty()
+    @IsEnum(ACCESS_LEVEL)
+    accessLevel: ACCESS_LEVEL;
+  }
