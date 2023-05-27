@@ -1,9 +1,12 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, UseGuards } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
 import { UsersEntity } from '../entities/users.entity';
 import { UserDto, UserToProjectDTO, UserUpdateDTO } from '../dto/user.dto';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { PublicAccess } from 'src/auth/decorators/public.decorator';
 
 @Controller('users')
+@UseGuards(AuthGuard)
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
@@ -23,6 +26,7 @@ export class UsersController {
     }
 
     @Get(':id')
+    @PublicAccess()
     public async findUserById(@Param('id',new ParseUUIDPipe()) id: string) {
         return await this.usersService.findUserById(id);
     }
