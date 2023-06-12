@@ -4,9 +4,11 @@ import { UsersEntity } from '../entities/users.entity';
 import { UserDto, UserToProjectDTO, UserUpdateDTO } from '../dto/user.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { PublicAccess } from 'src/auth/decorators/public.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @Controller('users')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RolesGuard)
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
@@ -20,6 +22,7 @@ export class UsersController {
         return await this.usersService.relationToProject(body);
     }
 
+    @Roles('ADMIN')
     @Get('all')
     public async findAllUsers() {
         return await this.usersService.findUsers();
